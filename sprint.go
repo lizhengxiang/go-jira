@@ -68,6 +68,24 @@ func (s *SprintService) GetIssuesForSprint(sprintID int) ([]Issue, *Response, er
 	return result.Issues, resp, err
 }
 
+func (s *SprintService) GetIssuesForSprintAll(sprintID int) ([]Issue, *Response, error) {
+	apiEndpoint := fmt.Sprintf("rest/agile/1.0/sprint/%d/issue?maxResults=1000&fields=parent,key,issuetype", sprintID)
+
+	req, err := s.client.NewRequest("GET", apiEndpoint, nil)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	result := new(IssuesInSprintResult)
+	resp, err := s.client.Do(req, result)
+	if err != nil {
+		err = NewJiraError(resp, err)
+	}
+
+	return result.Issues, resp, err
+}
+
 // GetIssue returns a full representation of the issue for the given issue key.
 // JIRA will attempt to identify the issue by the issueIdOrKey path parameter.
 // This can be an issue id, or an issue key.
